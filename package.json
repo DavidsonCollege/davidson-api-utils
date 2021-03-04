@@ -1,0 +1,29 @@
+{
+  "name": "davidson-api-utils",
+  "version": "0.1.0",
+  "description": "Utilities for the Davidson API",
+  "main": "index.js",
+  "scripts": {
+    "test": "null"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DavidsonCollege/davidson-api-utils.git"
+  },
+  "keywords": [
+    "davidson",
+    "college",
+    "api",
+    "utilities",
+    "utils"
+  ],
+  "author": "Davidson T&I <ti@davidson.edu>",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/DavidsonCollege/davidson-api-utils/issues"
+  },
+  "homepage": "https://github.com/DavidsonCollege/davidson-api-utils#readme",
+  "dependencies": {
+    "mssql": "^6.3.1"
+  }
+}

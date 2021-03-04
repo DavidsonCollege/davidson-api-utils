@@ -102,3 +102,20 @@ dist
 
 # TernJS port file
 .tern-port
+
+# macOS
+.DS_Store
+
+# IntelliJ IDEs
+.idea
+# VisualStudioCode IDEs
+.vscode
+.vs
+eslint-report.json
+
+node_modules
+*.rdb
+stunnel.conf
+stunnel.pid
+*.out
+package-lock.json
