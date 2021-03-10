@@ -13,6 +13,6 @@ test('creates a where group', () => {
         ]]
     ]
     qb.wheres.push(qb.createWhereGroup(wheres))
-    expect(qb.whereSql(qb.wheres)).toBe("(col = 2 AND col BETWEEN 1 AND 2 AND col IN (1,2) AND col IS NULL OR NOT (col = 3 OR col NOT IN (1,2,3,4,5)))")
+    expect(qb.whereSql(qb.wheres)).toBe("WHERE (col = 2 AND col BETWEEN 1 AND 2 AND col IN (1,2) AND col IS NULL OR NOT (col = 3 OR col NOT IN (1,2,3,4,5)))")
 });
 
