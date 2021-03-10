@@ -67,7 +67,7 @@ test('where ins', () => {
 
     w = new Where(type)
     w.init('$data.target[0].arr:array', [1, 2, 3])
-    expect(w.sql).toBe('target_0__arr IN (1,2,3)');
+    expect(w.sql).toBe('target_0__arr_cross IN (1,2,3)');
     expect(w.crossApplySql).toBe("CROSS APPLY OPENJSON (data, '$.target[0].arr') WITH (target_0__arr_cross NVARCHAR(max) '$')");
 });
 
