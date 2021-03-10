@@ -87,14 +87,16 @@ test('correctly sets a selection', () => {
 
     const column1 = new Column('table.$data.test as test')
     expect(column1.selection()).toBe("JSON_VALUE(table.data, '$.test') as test")
+
+    const column2 = new Column('table.$data.test')
+    expect(column2.selection()).toBe("JSON_VALUE(table.data, '$.test') as test")
 });
 
 test('correctly sets a json cross apply', () => {
     const column1 = new Column('table.$data.test.to[0].object:array as test')
-    const crossApply = "CROSS APPLY OPENJSON (table.data, '$.test.to[0].object') WITH (test_to_0__object NVARCHAR(max) '$')"
-    const assignment = 'test_to_0__object'
+    const crossApply = "CROSS APPLY OPENJSON (table.data, '$.test.to[0].object') WITH (test_to_0__object_cross NVARCHAR(max) '$')"
+    const assignment = 'test_to_0__object_cross'
     expect(column1.jsonCrossApply()).toBe(crossApply)
-    expect(column1.json.normalized).toBe(assignment)
 
     const column2 = new Column('table.$data.test as test')
     expect(column2.jsonCrossApply()).toBe(false)
