@@ -25,3 +25,12 @@ test('creates sql with null where', () => {
         .select('data')
     expect(client.qb.sql()).toBe("SELECT data FROM courses ORDER BY courses._id OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY")
 });
+
+
+test('correctly orders', () => {
+    const client = new DdsSqlClient({})
+    client.query('courses')
+        .select('data')
+        .orderByDesc('test')
+    expect(client.qb.sql()).toBe("SELECT data FROM courses ORDER BY test DESC OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY")
+});
