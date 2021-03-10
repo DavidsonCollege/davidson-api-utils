@@ -91,14 +91,14 @@ test('correctly sets a selection', () => {
 
 test('correctly sets a json cross apply', () => {
     const column1 = new Column('table.$data.test.to[0].object:array as test')
-    const test = {
-        sql: "CROSS APPLY OPENJSON (table.data, '$.test.to[0].object') WITH (test_to_0__object NVARCHAR(max) '$')",
-        assignment: 'test_to_0__object'
-    }
-    expect(column1.jsonCrossApply()).toStrictEqual(test)
+    const crossApply = "CROSS APPLY OPENJSON (table.data, '$.test.to[0].object') WITH (test_to_0__object NVARCHAR(max) '$')"
+    const assignment = 'test_to_0__object'
+    expect(column1.jsonCrossApply()).toBe(crossApply)
+    expect(column1.json.normalized).toBe(assignment)
 
     const column2 = new Column('table.$data.test as test')
     expect(column2.jsonCrossApply()).toBe(false)
+    expect(column2.json.normalized).toBe('test')
 });
 
 test('creates an all (*) column', () => {
