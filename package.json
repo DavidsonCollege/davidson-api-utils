@@ -4,7 +4,7 @@
   "description": "Utilities for the Davidson API",
   "main": "index.js",
   "scripts": {
-    "test": "null"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -25,5 +25,8 @@
   "homepage": "https://github.com/DavidsonCollege/davidson-api-utils#readme",
   "dependencies": {
     "mssql": "^6.3.1"
+  },
+  "devDependencies": {
+    "jest": "^26.6.3"
   }
 }
