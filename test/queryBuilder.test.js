@@ -1,4 +1,20 @@
 const QueryBuilder = require('../lib/queryBuilder/queryBuilder')
+const Raw = require('../lib/queryBuilder/raw')
+
+test('selection tests', () => {
+    const qb = new QueryBuilder('courses')
+
+    // bogus column
+    expect(() => {
+        qb.select('bad column name')
+    }).toThrow();
+
+    // multiple columns
+    qb.select(['column1', 'col2 as column2', '$data.column3'])
+    expect(qb.selections).toBe("column1, col2 as column2, JSON_VALUE(data, '$.column3') as column3")
+
+});
+
 
 test('creates a where group', () => {
     const qb = new QueryBuilder('courses')
@@ -24,5 +40,22 @@ test('order by sql', () => {
 
     qb.addOrderBy('test2', 'asc')
     expect(qb.orderBySql()).toBe("test DESC, test2")
+});
+
+test('offset', () => {
+    const qb = new QueryBuilder('courses')
+
+    qb.select()
+    qb.setOffset(10)
+    expect(qb.sql()).toBe("SELECT * FROM courses ORDER BY courses._id OFFSET 10 ROWS FETCH NEXT 100 ROWS ONLY")
+
+});
+
+test('limit', () => {
+    const qb = new QueryBuilder('courses')
+
+    qb.select()
+    qb.setLimit(10)
+    expect(qb.sql()).toBe("SELECT * FROM courses ORDER BY courses._id OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY")
 
 });

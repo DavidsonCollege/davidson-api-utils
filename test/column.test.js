@@ -22,6 +22,7 @@ test('correctly tests for valid json path', () => {
     expect(column.isValidJsonPath('$test.column:array:array')).toBe(false);
 });
 
+/*
 test('correctly process table', () => {
     const column = new Column()
     const name = column.processTableAndAlias('table.column as col')
@@ -148,4 +149,4 @@ test('constructs a selection argument', () => {
 
     const column3 = new Column('$data.term as term_code')
     expect(column3.selection()).toBe("JSON_VALUE(data, '$.term') as term_code")
-});
+});*/
