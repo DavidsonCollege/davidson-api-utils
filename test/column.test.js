@@ -17,9 +17,59 @@ test('correctly tests for valid json path', () => {
     expect(column.isValidJsonPath('$test')).toBe(false);
     expect(column.isValidJsonPath('test')).toBe(false);
     expect(column.isValidJsonPath('test as something')).toBe(false);
+    expect(column.isValidJsonPath('$test.column[*][*]')).toBe(false);
+
     expect(column.isValidJsonPath('$test.column.name.other[0].name')).toBe(true);
-    expect(column.isValidJsonPath('$test.column:array')).toBe(true);
-    expect(column.isValidJsonPath('$test.column:array:array')).toBe(false);
+    expect(column.isValidJsonPath('$test.column[*]')).toBe(true);
+    expect(column.isValidJsonPath('$test.')).toBe(true);
+    expect(column.isValidJsonPath('$test.some[25].thing[*].really.really[4].long.')).toBe(true);
+});
+
+test('correctly normalizes a json path', () => {
+    const column = new Column()
+    expect(column.normalizeJsonPath('$test.column.name.other[0].name')).toBe('test_column_name_other_0_name');
+    expect(column.normalizeJsonPath('$test.column[*]')).toBe('test_column');
+    expect(column.normalizeJsonPath('$test.')).toBe('test');
+    expect(column.normalizeJsonPath('$test.some[25].thing[*].really.really[4].long.')).toBe('test_some_25_thing_really_really_4_long');
+});
+
+test('correctly assesses a standard json path', () => {
+    const column = new Column()
+    expect(column.processJsonPath('$test.column.name.other[0].name')).toBe("JSON_VALUE(test, '$.column.name.other[0].name')");
+    expect(column.alias).toBe('test_column_name_other_0_name')
+    expect(column.processJsonPath('$test.')).toBe("JSON_QUERY(test, '$')");
+});
+
+test('correctly assesses a splat array json path', () => {
+    const column = new Column()
+    expect(column.processJsonPath('$data.notes[*]')).toBe("x_data_notes");
+    expect(column.alias).toBe('data_notes')
+    expect(column.json.xApplies.length).toBe(1)
+    expect(column.json.xApplies[0]).toBe("CROSS APPLY OPENJSON(data, '$.notes') WITH (x_data_notes NVARCHAR(max) '$')")
+
+    expect(column.processJsonPath('$data.meetings[*].')).toBe("x_data_meetings");
+    expect(column.alias).toBe('data_meetings')
+    expect(column.json.xApplies.length).toBe(1)
+    expect(column.json.xApplies[0]).toBe("CROSS APPLY OPENJSON(data, '$.meetings') WITH (x_data_meetings NVARCHAR(max) '$' AS JSON)")
+
+    expect(column.processJsonPath('$data.meetings[*].days[*]')).toBe("x_data_meetings_days");
+    expect(column.alias).toBe('data_meetings_days')
+    expect(column.json.xApplies.length).toBe(2)
+    expect(column.json.xApplies[0]).toBe("CROSS APPLY OPENJSON(data, '$.meetings') WITH (x_data_meetings NVARCHAR(max) '$' AS JSON)")
+    expect(column.json.xApplies[1]).toBe("CROSS APPLY OPENJSON(x_data_meetings, '$.days') WITH (x_data_meetings_days NVARCHAR(max) '$')")
+
+    expect(column.processJsonPath('$data.meetings[*].days[*].')).toBe("x_data_meetings_days");
+    expect(column.alias).toBe('data_meetings_days')
+    expect(column.json.xApplies.length).toBe(2)
+    expect(column.json.xApplies[0]).toBe("CROSS APPLY OPENJSON(data, '$.meetings') WITH (x_data_meetings NVARCHAR(max) '$' AS JSON)")
+    expect(column.json.xApplies[1]).toBe("CROSS APPLY OPENJSON(x_data_meetings, '$.days') WITH (x_data_meetings_days NVARCHAR(max) '$' AS JSON)")
+
+    expect(column.processJsonPath('$data.meetings[*].some.other[12].thing[*].days[*]')).toBe("x_data_meetings_some_other_12_thing_days");
+    expect(column.alias).toBe('data_meetings_some_other_12_thing_days')
+    expect(column.json.xApplies.length).toBe(3)
+    expect(column.json.xApplies[0]).toBe("CROSS APPLY OPENJSON(data, '$.meetings') WITH (x_data_meetings NVARCHAR(max) '$' AS JSON)")
+    expect(column.json.xApplies[1]).toBe("CROSS APPLY OPENJSON(x_data_meetings, '$.some.other[12].thing') WITH (x_data_meetings_some_other_12_thing NVARCHAR(max) '$' AS JSON)")
+    expect(column.json.xApplies[2]).toBe("CROSS APPLY OPENJSON(x_data_meetings_some_other_12_thing, '$.days') WITH (x_data_meetings_some_other_12_thing_days NVARCHAR(max) '$')")
 });
 
 /*
