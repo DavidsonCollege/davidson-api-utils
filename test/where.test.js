@@ -1,7 +1,36 @@
 const Where = require('../lib/queryBuilder/where')
 const Raw = require('../lib/queryBuilder/raw')
 
-test('basic wheres', () => {
+test('constructor test', () => {
+   expect(() => {
+       new Where('where')
+   }).not.toThrow()
+
+    expect(() => {
+        new Where('where', true)
+    }).not.toThrow()
+
+    expect(() => {
+        new Where('where', false, true)
+    }).not.toThrow()
+})
+
+test('init test', () => {
+    const where = new Where('where')
+    expect(() => {
+        where.init('subject_code', 'bio')
+    }).not.toThrow()
+});
+
+test('throws error on bad where type', () => {
+    const where = new Where('bad')
+    expect(() => {
+        where.init('subject_code', 'bio')
+    }).toThrow()
+});
+
+
+test('where', () => {
     const type = 'where'
     let w = new Where(type)
     w.init('col', 2)
@@ -19,9 +48,18 @@ test('basic wheres', () => {
     w.init('col', 'test')
     expect(w.sql).toBe("NOT col = 'test'");
 
+    w = new Where(type)
+    w.init('$data.test', 2)
+    expect(w.sql).toBe("JSON_VALUE(data, '$.test') = 2");
+    w.init('$data.test.', 2)
+    expect(w.sql).toBe("JSON_QUERY(data, '$.test') = 2");
+    w.init('$data.test[*]', 2)
+    expect(w.sql).toBe("x_data_test = 2");
+    w.init('$data.test[*].nested[*].splat', 2)
+    expect(w.sql).toBe("x_data_test_nested_splat = 2");
 });
 
-test('there arg wheres', () => {
+test('three arg wheres', () => {
     const type = 'where'
     let w = new Where(type)
     w.init('col', '<>', 2)
@@ -35,6 +73,7 @@ test('there arg wheres', () => {
     w.init('col', '>', '2')
     expect(w.sql).toBe("NOT col > '2'");
 });
+
 
 test('where betweens', () => {
     const type = 'between'
@@ -61,14 +100,9 @@ test('where ins', () => {
     w.init('col', [1, 100])
     expect(w.sql).toBe("col NOT IN (1,100)");
 
-    const raw = new Raw('SELECT id FROM table WHERE id = 1')
-    w.init('col', raw)
-    expect(w.sql).toBe(`col NOT IN (${raw.sql})`);
-
     w = new Where(type)
-    w.init('$data.target[0].arr:array', [1, 2, 3])
-    expect(w.sql).toBe('target_0__arr_cross IN (1,2,3)');
-    expect(w.crossApplySql).toBe("CROSS APPLY OPENJSON (data, '$.target[0].arr') WITH (target_0__arr_cross NVARCHAR(max) '$')");
+    w.init('$data.target[0].arr[*]', [1, 2, 3])
+    expect(w.sql).toBe('x_data_target_0_arr IN (1,2,3)');
 });
 
 test('where nulls', () => {
