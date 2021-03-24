@@ -54,6 +54,14 @@ test('creates a where group', () => {
     // expect(qb.whereSql(qb.wheres)).toBe("WHERE (col = 2 AND col BETWEEN 1 AND 2 AND col IN (1,2) AND col IS NULL OR NOT (col = 3 OR col NOT IN (1,2,3,4,5)))")
 });
 
+test('uniqifies cross applies', () => {
+    const qb = new QueryBuilder('courses')
+    qb.wheres.push(qb.createWhere('where', ['$data.notes[*]', 'test']))
+    qb.wheres.push(qb.createWhere('where', ['$data.notes[*]', 'test']))
+    expect(qb.wheres.length).toBe(2)
+    expect(qb.getCrossApplys(qb.wheres)).toBe("CROSS APPLY OPENJSON(data, '$.notes') WITH (x_data_notes NVARCHAR(max) '$')")
+});
+
 test('correct creates a WHERE sql statement', () => {
     const qb = new QueryBuilder('courses')
 });

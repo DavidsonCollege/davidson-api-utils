@@ -14,9 +14,15 @@ test('creates sql', () => {
     const client = new DdsSqlClient({})
     client.query('courses')
         .select('data')
-        .whereIn('$data.notes:array', ['i', 'h'])
-        .whereIn('$data.grad_requirements:array', ['jec'])
-    expect(client.qb.sql()).toBe("SELECT data FROM courses CROSS APPLY OPENJSON (data, '$.notes') WITH (notes_cross NVARCHAR(max) '$') CROSS APPLY OPENJSON (data, '$.grad_requirements') WITH (grad_requirements_cross NVARCHAR(max) '$') WHERE notes_cross IN ('i','h') AND grad_requirements_cross IN ('jec') ORDER BY courses._id OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY")
+        .whereIn('$data.notes[*]', ['i', 'h'])
+        .whereIn('$data.grad_requirements[*]', ['jec'])
+    expect(client.qb.sql()).toBe("SELECT data FROM courses " +
+        "CROSS APPLY OPENJSON(data, '$.notes') WITH (x_data_notes NVARCHAR(max) '$') " +
+        "CROSS APPLY OPENJSON(data, '$.grad_requirements') " +
+        "WITH (x_data_grad_requirements NVARCHAR(max) '$') " +
+        "WHERE x_data_notes IN ('i','h') " +
+        "AND x_data_grad_requirements IN ('jec') " +
+        "ORDER BY courses._id OFFSET 0 ROWS FETCH NEXT 100 ROWS ONLY")
 });
 
 test('creates sql with null where', () => {
